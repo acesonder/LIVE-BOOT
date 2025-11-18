@@ -1,0 +1,48 @@
+# ISO files
+*.iso
+
+# Downloaded files
+Downloads/
+downloads/
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*~
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Mount points
+/mnt/
+/media/
+
+# Test directories
+test/
+testing/
+
+# User-specific config
+config/local-*
+config/*.local
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+
+# Build artifacts
+build/
+dist/
