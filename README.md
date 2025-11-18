@@ -4,6 +4,8 @@ A comprehensive Live Boot OS installer for HP laptops without internet recovery 
 
 ## 🚀 Quick Start
 
+**New User?** 👉 See the [**STEP-BY-STEP INSTALLATION GUIDE**](INSTALLATION-GUIDE.md) for direct instructions on how to run this on your HP laptop.
+
 ```bash
 # Clone the repository
 git clone https://github.com/acesonder/LIVE-BOOT.git
@@ -54,6 +56,7 @@ This tool is perfect for:
 
 ## 📖 Documentation
 
+- **[INSTALLATION GUIDE](INSTALLATION-GUIDE.md)** - **START HERE!** Step-by-step instructions for HP laptops
 - **[Complete Documentation](docs/README.md)** - Comprehensive guide with all features
 - **[HP Laptop Guide](docs/HP-LAPTOP-GUIDE.md)** - HP-specific BIOS and boot instructions
 - **[Quick Start](#quick-start)** - Get started immediately
