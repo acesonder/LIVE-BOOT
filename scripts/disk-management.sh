@@ -245,7 +245,7 @@ mount_unmount() {
     case $mount_choice in
         1)
             info "Available unmounted partitions:"
-            lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT | grep part | grep -v "/"
+            lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT -n | awk '$3 == "part" && $5 == ""'
             echo ""
             
             read -p "Enter partition to mount (e.g., sda1): " part_name
@@ -345,7 +345,9 @@ wipe_disk() {
     log "This will take several minutes..."
     
     # Unmount all partitions
-    umount "${device}"* 2>/dev/null || true
+    for part in $(lsblk -ln -o NAME "$device" | grep -v "^$(basename "$device")$"); do
+        umount "/dev/$part" 2>/dev/null || true
+    done
     
     # Zero out first and last 10MB
     dd if=/dev/zero of="$device" bs=1M count=10 status=progress 2>/dev/null || true

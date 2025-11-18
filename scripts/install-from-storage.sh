@@ -22,68 +22,72 @@ echo "  Install OS from Storage Device"
 echo "========================================="
 echo ""
 
-# Detect available storage devices
-info "Scanning for storage devices with ISO files..."
-echo ""
-
-# List all block devices
-info "Available storage devices:"
-lsblk -d -o NAME,SIZE,TYPE,MODEL | grep -E "disk"
-echo ""
-
-# Search for ISO files on mounted devices
-info "Searching for ISO files on mounted devices..."
-ISO_FILES=$(find /media /mnt /run/media -name "*.iso" 2>/dev/null || true)
-
-if [[ -n "$ISO_FILES" ]]; then
-    echo "Found ISO files:"
-    echo "$ISO_FILES"
+# Check if ISO_FILE is already provided (e.g., from network installer)
+if [[ -z "$ISO_FILE" ]]; then
+    # Detect available storage devices
+    info "Scanning for storage devices with ISO files..."
     echo ""
-fi
 
-# Manual selection
-echo "Options:"
-echo "  1) Auto-detect ISO from mounted devices"
-echo "  2) Mount device and search for ISO"
-echo "  3) Enter ISO path manually"
-echo ""
-read -p "Select option [1-3]: " option
+    # List all block devices
+    info "Available storage devices:"
+    lsblk -d -o NAME,SIZE,TYPE,MODEL | grep -E "disk"
+    echo ""
 
-ISO_FILE=""
-case $option in
-    1)
-        if [[ -z "$ISO_FILES" ]]; then
-            error "No ISO files found on mounted devices"
-            exit 1
-        fi
-        # Select first ISO found
-        ISO_FILE=$(echo "$ISO_FILES" | head -n1)
-        info "Using: $ISO_FILE"
-        ;;
-    2)
-        read -p "Enter device to mount (e.g., /dev/sdb1): " mount_dev
-        TEMP_MOUNT="/tmp/iso-search-$$"
-        mkdir -p "$TEMP_MOUNT"
-        mount "$mount_dev" "$TEMP_MOUNT" 2>/dev/null || {
-            error "Failed to mount $mount_dev"
-            rmdir "$TEMP_MOUNT"
-            exit 1
-        }
-        
-        info "Searching for ISO files..."
-        find "$TEMP_MOUNT" -name "*.iso" -type f
+    # Search for ISO files on mounted devices
+    info "Searching for ISO files on mounted devices..."
+    ISO_FILES=$(find /media /mnt /run/media -name "*.iso" 2>/dev/null || true)
+
+    if [[ -n "$ISO_FILES" ]]; then
+        echo "Found ISO files:"
+        echo "$ISO_FILES"
         echo ""
-        read -p "Enter ISO filename: " iso_name
-        ISO_FILE="$TEMP_MOUNT/$iso_name"
-        ;;
-    3)
-        read -p "Enter full path to ISO file: " ISO_FILE
-        ;;
-    *)
-        error "Invalid option"
-        exit 1
-        ;;
-esac
+    fi
+
+    # Manual selection
+    echo "Options:"
+    echo "  1) Auto-detect ISO from mounted devices"
+    echo "  2) Mount device and search for ISO"
+    echo "  3) Enter ISO path manually"
+    echo ""
+    read -p "Select option [1-3]: " option
+
+    case $option in
+        1)
+            if [[ -z "$ISO_FILES" ]]; then
+                error "No ISO files found on mounted devices"
+                exit 1
+            fi
+            # Select first ISO found
+            ISO_FILE=$(echo "$ISO_FILES" | head -n1)
+            info "Using: $ISO_FILE"
+            ;;
+        2)
+            read -p "Enter device to mount (e.g., /dev/sdb1): " mount_dev
+            TEMP_MOUNT="/tmp/iso-search-$$"
+            mkdir -p "$TEMP_MOUNT"
+            mount "$mount_dev" "$TEMP_MOUNT" 2>/dev/null || {
+                error "Failed to mount $mount_dev"
+                rmdir "$TEMP_MOUNT"
+                exit 1
+            }
+            
+            info "Searching for ISO files..."
+            find "$TEMP_MOUNT" -name "*.iso" -type f
+            echo ""
+            read -p "Enter ISO filename: " iso_name
+            ISO_FILE="$TEMP_MOUNT/$iso_name"
+            ;;
+        3)
+            read -p "Enter full path to ISO file: " ISO_FILE
+            ;;
+        *)
+            error "Invalid option"
+            exit 1
+            ;;
+    esac
+else
+    info "Using pre-selected ISO: $ISO_FILE"
+fi
 
 if [[ ! -f "$ISO_FILE" ]]; then
     error "ISO file not found: $ISO_FILE"
@@ -160,10 +164,18 @@ else
     # Copy files from ISO
     if [[ -d "$ISO_MOUNT/casper" ]]; then
         # Ubuntu-based
-        unsquashfs -f -d "$TARGET_MOUNT" "$ISO_MOUNT/casper/filesystem.squashfs"
+        TMP_UNSQUASH="/tmp/unsquashfs-$$"
+        mkdir -p "$TMP_UNSQUASH"
+        unsquashfs -f -d "$TMP_UNSQUASH" "$ISO_MOUNT/casper/filesystem.squashfs"
+        cp -a "$TMP_UNSQUASH"/* "$TARGET_MOUNT"/
+        rm -rf "$TMP_UNSQUASH"
     elif [[ -d "$ISO_MOUNT/LiveOS" ]]; then
         # Fedora-based
-        unsquashfs -f -d "$TARGET_MOUNT" "$ISO_MOUNT/LiveOS/squashfs.img"
+        TMP_UNSQUASH="/tmp/unsquashfs-$$"
+        mkdir -p "$TMP_UNSQUASH"
+        unsquashfs -f -d "$TMP_UNSQUASH" "$ISO_MOUNT/LiveOS/squashfs.img"
+        cp -a "$TMP_UNSQUASH"/* "$TARGET_MOUNT"/
+        rm -rf "$TMP_UNSQUASH"
     else
         # Generic copy
         cp -a "$ISO_MOUNT"/* "$TARGET_MOUNT"/

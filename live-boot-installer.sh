@@ -100,7 +100,11 @@ create_bootable_media() {
     fi
     
     # Call the bootable media creation script
-    bash "${SCRIPT_DIR}/scripts/create-bootable-usb.sh" "$device"
+    if bash "${SCRIPT_DIR}/scripts/create-bootable-usb.sh" "$device"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Install OS from storage device
@@ -109,7 +113,11 @@ install_from_storage() {
     echo -e "${CYAN}Install OS from Storage Device${NC}"
     echo ""
     
-    bash "${SCRIPT_DIR}/scripts/install-from-storage.sh"
+    if bash "${SCRIPT_DIR}/scripts/install-from-storage.sh"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Install OS from network
@@ -118,7 +126,11 @@ install_from_network() {
     echo -e "${CYAN}Install OS from Network${NC}"
     echo ""
     
-    bash "${SCRIPT_DIR}/scripts/install-from-network.sh"
+    if bash "${SCRIPT_DIR}/scripts/install-from-network.sh"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Download OS using built-in browser
@@ -135,7 +147,11 @@ download_os() {
     echo "  - Fedora: https://getfedora.org/"
     echo ""
     
-    bash "${SCRIPT_DIR}/scripts/download-os.sh"
+    if bash "${SCRIPT_DIR}/scripts/download-os.sh"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Setup PXE server for network boot
@@ -144,7 +160,11 @@ setup_pxe_server() {
     echo -e "${CYAN}Setup Network Boot (PXE Server)${NC}"
     echo ""
     
-    bash "${SCRIPT_DIR}/scripts/setup-pxe-server.sh"
+    if bash "${SCRIPT_DIR}/scripts/setup-pxe-server.sh"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Disk and partition management
@@ -153,7 +173,11 @@ disk_management() {
     echo -e "${CYAN}Disk/Partition Management${NC}"
     echo ""
     
-    bash "${SCRIPT_DIR}/scripts/disk-management.sh"
+    if bash "${SCRIPT_DIR}/scripts/disk-management.sh"; then
+        log "Operation completed successfully"
+    else
+        error "Operation failed with exit code $?"
+    fi
 }
 
 # Show system information

@@ -116,11 +116,21 @@ case $net_option in
                 else
                     read -s -p "Enter password: " smb_pass
                     echo ""
-                    mount -t cifs "$smb_path" "$MOUNT_POINT" -o username="$smb_user",password="$smb_pass" || {
+                    # Create a temporary credentials file
+                    SMB_CREDS_FILE="/tmp/smb-cred-$$"
+                    {
+                        echo "username=$smb_user"
+                        echo "password=$smb_pass"
+                    } > "$SMB_CREDS_FILE"
+                    chmod 600 "$SMB_CREDS_FILE"
+                    mount -t cifs "$smb_path" "$MOUNT_POINT" -o credentials="$SMB_CREDS_FILE" || {
                         error "Failed to mount SMB share"
                         rmdir "$MOUNT_POINT"
+                        rm -f "$SMB_CREDS_FILE"
                         exit 1
                     }
+                    # Remove credentials file after mounting
+                    rm -f "$SMB_CREDS_FILE"
                 fi
                 ;;
         esac

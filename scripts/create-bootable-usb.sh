@@ -88,7 +88,7 @@ log "Creating bootable media..."
 
 # Wipe the device
 log "Wiping device partition table..."
-dd if=/dev/zero of="$DEVICE" bs=1M count=10 status=progress 2>/dev/null || true
+dd if=/dev/zero of="$DEVICE" bs=1M count=10 status=progress || true
 sync
 
 # Create new partition table

@@ -182,7 +182,7 @@ log "Configuring NFS..."
 cat >> /etc/exports <<EOF
 
 # PXE Boot exports
-$NFS_ROOT *(ro,sync,no_root_squash,no_subtree_check)
+$NFS_ROOT *(ro,sync,root_squash,no_subtree_check)
 EOF
 
 # Set permissions
